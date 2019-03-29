@@ -1,0 +1,133 @@
+---
+title: "P8106 HOMEWORK 3"
+author: \sl xc2474 Xinlei Chen
+date: "3/28/2019"
+output: pdf_document
+---
+
+## Problem
+
+*This questions will be answered using the Weekly data set, which is part of the ISLR package. This data is similar in nature to the Smarket data on the textbook except that it contains 1,089 weekly returns for 21 years, from the beginning of 1990 to the end of 2010. A description of the data can be found by typing ?Weekly in the Console. (Note that the column Today is not a predictor.)*
+
+$$
+$$
+
+```{r, message=FALSE, warning=FALSE}
+# load packages
+library(tidyverse)
+library(ISLR)
+library(caret)
+library(AppliedPredictiveModeling)
+library(pROC)
+library(MASS)
+#import data
+data("Weekly")
+dat = Weekly
+head(dat)
+```
+
+$$
+$$
+
+*(a) Produce some graphical summaries of the Weekly data.*
+
+```{r}
+transparentTheme(trans = .4)
+featurePlot(x = dat[, 1:8],
+            y = dat$Direction,
+            scales = list(x=list(relation="free"),
+                          y=list(relation="free")), 
+            plot = "density", pch = "|",
+            auto.key = list(columns = 2))
+```
+
+```{r}
+pairs(dat)
+```
+
+$$
+$$
+
+*(b) Use the full data set to perform a logistic regression with Direction as the response and the five Lag variables plus Volume as predictors. Do any of the predictors appear to be statistically significant? If so, which ones?*
+
+```{r}
+glm.fit <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data=dat, family="binomial")
+summary(glm.fit)
+```
+
+$$
+$$
+
+*(c) Compute the confusion matrix and overall fraction of correct predictions. Briefly explain what the confusion matrix is telling you.*
+
+```{r}
+test.pred.prob <- predict(glm.fit, type = "response")
+test.pred <- rep("Down", length(test.pred.prob)) 
+test.pred[test.pred.prob>0.5] <- "Up"
+confusionMatrix(data = as.factor(test.pred), reference = dat$Direction)
+```
+
+$$
+$$
+
+*(d) Plot the ROC curve using the predicted probability from logistic regression and report the AUC.*
+
+```{r}
+roc.glm <- roc(dat$Direction, test.pred.prob) 
+plot(roc.glm, legacy.axes = TRUE, print.auc = TRUE) 
+plot(smooth(roc.glm), col = 4, add = TRUE)
+```
+
+$$
+$$
+
+*(e) Now fit the logistic regression model using a training data period from 1990 to 2008, with Lag1 and Lag2 as the predictors. Plot the ROC curve using the held out data (that is, the data from 2009 and 2010) and report the AUC.*
+
+```{r}
+trainset = (dat$Year<=2008)
+testset = dat[!trainset,]
+```
+
+```{r}
+glm.fit.d <- glm(Direction ~ Lag1 + Lag2, data=dat, subset=trainset, family="binomial")
+glm.probs.d <- predict(glm.fit.d, type="response", newdata=testset)
+roc.glm <- roc(testset$Direction, glm.probs.d)
+plot(roc.glm, legacy.axes = TRUE, print.auc = TRUE)
+plot(smooth(roc.glm), col = 4, add = TRUE)
+```
+
+$$
+$$
+
+*(f) Repeat (e) using LDA and QDA.*
+
+```{r}
+# LDA
+lda.fit <- lda(Direction ~ Lag1 + Lag2, data=dat, subset=trainset)
+lda.pred <- predict(lda.fit, newdata = testset)
+head(lda.pred$posterior)
+
+roc.lda <- roc(testset$Direction, lda.pred$posterior[,2], 
+               levels = c("Down", "Up"))
+
+plot(roc.lda, legacy.axes = TRUE, print.auc = TRUE)
+```
+
+```{r}
+# QDA
+qda.fit <- qda(Direction ~ Lag1 + Lag2, data=dat, subset=trainset)
+qda.pred <- predict(qda.fit, newdata = testset)
+head(qda.pred$posterior)
+
+roc.qda <- roc(testset$Direction, qda.pred$posterior[,2], 
+               levels = c("Down", "Up"))
+
+plot(roc.qda, legacy.axes = TRUE, print.auc = TRUE)
+
+```
+
+$$
+$$
+
+*(g) Repeat (e) using KNN. Briefly discuss your results.*
+
