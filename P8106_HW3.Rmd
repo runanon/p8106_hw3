@@ -1,7 +1,7 @@
 ---
-title: "Untitled"
-author: "xc2474 Xinlei Chen"
-date: "4/9/2019"
+title: "P8106 HOMEWORK 3"
+author: \sl xc2474 Xinlei Chen
+date: "3/28/2019"
 output: pdf_document
 ---
 
@@ -121,6 +121,7 @@ roc.lda <- roc(testset$Direction, lda.pred$posterior[,2],
                levels = c("Down", "Up"))
 
 plot(roc.lda, legacy.axes = TRUE, print.auc = TRUE)
+plot(smooth(roc.lda), col = 4, add = TRUE)
 ```
 
 For LDA, the AUC is 0.557.
@@ -135,6 +136,7 @@ roc.qda <- roc(testset$Direction, qda.pred$posterior[,2],
                levels = c("Down", "Up"))
 
 plot(roc.qda, legacy.axes = TRUE, print.auc = TRUE)
+plot(smooth(roc.qda), col = 4, add = TRUE)
 
 ```
 
@@ -163,10 +165,16 @@ knnFit <- train(Direction ~ Lag1 + Lag2, data = train,
 knnFit
 plot(knnFit)
 # K=7 has the highest accuracy rate
+
+library(pROC)
 knnPredict <- predict(knnFit,newdata = test , type="prob")
 knnROC <- roc(test$Direction, knnPredict[,"Down"])
 knnROC
-plot(knnROC, type="S", print.auc = TRUE)
+
+plot(knnROC,type="S", legacy.axes = TRUE, print.auc=T)
+plot(smooth(knnROC), col = 4, add = TRUE)
 ```
 
+The AUC is 0.565.
 
+Results: Higher the AUC, better the model is at successfully predicting classification. So judging from AUC, LDA model is the best and logistic model is the second best.

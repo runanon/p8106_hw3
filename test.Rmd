@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "P8106 HOMEWORK 3"
 author: "xc2474 Xinlei Chen"
 date: "4/9/2019"
 output: pdf_document
