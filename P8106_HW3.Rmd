@@ -155,7 +155,9 @@ train = dat %>%
 test = dat %>%
   filter(Year>2008)
 
-ctrl <- trainControl(method="repeatedcv",repeats = 3,classProbs=TRUE,summaryFunction = twoClassSummary)
+set.seed(123)
+
+ctrl <- trainControl(method="repeatedcv",repeats = 3,classProbs=TRUE, summaryFunction = twoClassSummary)
 knnFit <- train(Direction ~ Lag1 + Lag2, data = train,
                 method = "knn", 
                 trControl = ctrl, 
@@ -168,7 +170,7 @@ plot(knnFit)
 
 library(pROC)
 knnPredict <- predict.train(knnFit, newdata = test , type="prob")
-knnROC <- roc(test$Direction, knnPredict[,"Down"], levels = c("Down", "Up"))
+knnROC <- roc(test$Direction, knnPredict[,"Up"], levels = c("Down", "Up"))
 knnROC
 
 plot(knnROC,type="S", legacy.axes = TRUE, print.auc=T)
