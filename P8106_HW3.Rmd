@@ -168,13 +168,13 @@ plot(knnFit)
 
 library(pROC)
 knnPredict <- predict(knnFit,newdata = test , type="prob")
-knnROC <- roc(test$Direction, knnPredict[,"Down"])
+knnROC <- roc(test$Direction, knnPredict[,"Down"], levels = c("Down", "Up"))
 knnROC
 
 plot(knnROC,type="S", legacy.axes = TRUE, print.auc=T)
 plot(smooth(knnROC), col = 4, add = TRUE)
 ```
 
-The AUC is 0.565.
+The AUC is 0.545.
 
 Results: Higher the AUC, better the model is at successfully predicting classification. So judging from AUC, LDA model is the best and logistic model is the second best.
