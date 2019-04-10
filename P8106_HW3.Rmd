@@ -179,4 +179,4 @@ plot(smooth(knnROC), col = 4, add = TRUE)
 
 The AUC is 0.545.
 
-Results: Higher the AUC, better the model is at successfully predicting classification. So judging from AUC, LDA model is the best and logistic model is the second best.
+**Result:** Higher the AUC, better the model is at successfully predicting classification. So judging from AUC, LDA model does the best prediction and QDA is the worst. However, the AUC's of all 4 models are close to each other and they are all slightly greater than 0.5, meaning all 4 models cannot perdict catagorical response `Direction` well.
