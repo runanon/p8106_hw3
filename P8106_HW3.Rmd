@@ -147,7 +147,7 @@ $$
 
 *(g) Repeat (e) using KNN. Briefly discuss your results.*
 
-```{r}
+```{r, warning=F}
 # choose the best K
 train = dat %>%
   filter(Year<=2008)
@@ -155,18 +155,20 @@ train = dat %>%
 test = dat %>%
   filter(Year>2008)
 
-set.seed(123)
+set.seed(123123)
 
-ctrl <- trainControl(method="repeatedcv",repeats = 3,classProbs=TRUE, summaryFunction = twoClassSummary)
+ctrl <- trainControl(method="repeatedcv",repeats = 3,classProbs=TRUE, 
+                     summaryFunction = twoClassSummary)
+
 knnFit <- train(Direction ~ Lag1 + Lag2, data = train,
                 method = "knn", 
                 trControl = ctrl, 
                 preProcess = c("center","scale"), 
-                tuneLength = 20)
+                tuneGrid = data.frame(k = seq(1,500,by=10))
+                )
 
-knnFit
+knnFit$bestTune
 plot(knnFit)
-# K=7 has the highest accuracy rate
 
 library(pROC)
 knnPredict <- predict.train(knnFit, newdata = test , type="prob")
@@ -177,6 +179,6 @@ plot(knnROC,type="S", legacy.axes = TRUE, print.auc=T)
 plot(smooth(knnROC), col = 4, add = TRUE)
 ```
 
-The AUC is 0.545.
+The AUC is 0.531. However, when doing the KNN, we choose k through cv and the range of k to choose should be from 1 to the size of training data (say, 985), since KNN identifies k records in the training data that are the "nearest" in similarity. However, it seems that the range of k for cv cannot be too large otherwise R will give error, so we choose 1-500 to find the best k.
 
 **Result:** Higher the AUC, better the model is at successfully predicting classification. So judging from AUC, LDA model does the best prediction and QDA is the worst. However, the AUC's of all 4 models are close to each other and they are all slightly greater than 0.5, meaning all 4 models cannot perdict catagorical response `Direction` well.
