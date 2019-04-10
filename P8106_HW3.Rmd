@@ -167,7 +167,7 @@ plot(knnFit)
 # K=7 has the highest accuracy rate
 
 library(pROC)
-knnPredict <- predict(knnFit,newdata = test , type="prob")
+knnPredict <- predict.train(knnFit, newdata = test , type="prob")
 knnROC <- roc(test$Direction, knnPredict[,"Down"], levels = c("Down", "Up"))
 knnROC
 
