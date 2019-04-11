@@ -43,8 +43,14 @@ featurePlot(x = dat[, 1:8],
 ```
 
 ```{r}
-pairs(dat)
+GGally::ggpairs(dat, columns = 1:8,
+                upper = list(continuous = "points"), lower = "blank",
+                aes(colour = Direction, alpha = 0.3) ) +
+  theme_bw()
+  
 ```
+
+For each predictors, there is no obvious different pattern of distribution between different direction; even we combine predictors, there is still no clear separated pattern.
 
 $$
 $$
@@ -71,7 +77,7 @@ test.pred[test.pred.prob>0.5] <- "Up"
 confusionMatrix(data = as.factor(test.pred), reference = dat$Direction)
 ```
 
-A confusion matrix is a table that is often used to describe the performance of a classification model (or "classifier") on a set of test data for which the true values are known. This confusion matrix tells us that (1) the percentage of correct predictions on the training data is 56.11%, or say, the training error rate is 43.89%. (2) For weeks when the market goes up, the model is right 92.07% of the time; for weeks when the market goes down, the model is right 11.16% of the time.
+A confusion matrix is a table that is often used to describe the performance of a classification model (or "classifier") on a set of test data for which the true values are known. This confusion matrix tells us that (1) the percentage of correct predictions on the training data is 56.11%, or say, the training error rate is 43.89%. (2) For weeks when the market goes up, the model is right 92.07% of the time; for weeks when the market goes down, the model is right 11.16% of the time. (3) The kappa, which represents the agreement between the preditive value and the true value is 0.035.
 
 $$
 $$
@@ -170,7 +176,6 @@ knnFit <- train(Direction ~ Lag1 + Lag2, data = train,
 knnFit$bestTune
 plot(knnFit)
 
-library(pROC)
 knnPredict <- predict.train(knnFit, newdata = test , type="prob")
 knnROC <- roc(test$Direction, knnPredict[,"Up"], levels = c("Down", "Up"))
 knnROC
